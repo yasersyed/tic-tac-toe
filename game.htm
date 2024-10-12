@@ -43,6 +43,7 @@
     <div style="display: flex; flex-direction: column; align-items: center;">
         <div class="board" id="board"></div>
         <div id="status"></div>
+        <button id="restartButton">&#x21bb;</button>
     </div>
     <script>
         const boardElement = document.getElementById('board');
@@ -128,6 +129,9 @@
             });
         }
 
+        const restartBtn = document.getElementById('restartButton');
+        restartBtn.addEventListener('click', restartGame);
+        
         // Initialize the game
         createBoard();
         statusElement.textContent = `Player ${currentPlayer}'s turn`;
