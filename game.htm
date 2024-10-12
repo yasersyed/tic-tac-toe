@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #d3d3d3;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            background-color: #fff;
+            border: 2px solid #333;
+            cursor: pointer;
+        }
+        .cell.taken {
+            pointer-events: none;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="board" id="board"></div>
+        <div id="status"></div>
+    </div>
+    <script>
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        let board = [null, null, null, null, null, null, null, null, null];
+        let currentPlayer = 'X';
+        let gameActive = true;
+        const cellElements = []; // Cache cell elements for direct access
+
+        // Function to create the board dynamically
+        function createBoard() {
+            board.forEach((cell, index) => {
+                let cellElement = cellElements[index];
+                if (!cellElement) {
+                    cellElement = document.createElement('div'); // Create a new div for each cell if it doesn't exist
+                    cellElement.classList.add('cell'); // Add the 'cell' class for styling
+                    cellElement.dataset.index = index; // Store the cell index as a data attribute
+                    boardElement.appendChild(cellElement); // Append the cell to the board
+                    cellElements[index] = cellElement; // Cache the cell element for future use
+                    cellElement.addEventListener('click', handleCellClick); // Add event listener only once during the initial setup
+                }
+                cellElement.textContent = cell === null ? '' : cell; // Set the cell's text content
+            });
+        }
+
+        function handleCellClick(event) {
+            const index = parseInt(event.target.dataset.index, 10);
+            if (board[index] !== null || !gameActive) {
+                return;
+            }
+            board[index] = currentPlayer;
+            event.target.textContent = currentPlayer;
+            event.target.classList.add('taken');
+            checkResult();
+            if (gameActive) {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                statusElement.textContent = `Player ${currentPlayer}'s turn`;
+            }
+        }
+
+        function checkResult() {
+            const winningCombinations = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            let roundWon = false;
+            for (let i = 0; i < winningCombinations.length; i++) {
+                const [a, b, c] = winningCombinations[i];
+                if (board[a] !== null && board[a] === board[b] && board[a] === board[c]) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                statusElement.textContent = `Player ${currentPlayer} has won!`;
+                gameActive = false;
+                return;
+            }
+
+            if (!board.includes(null)) {
+                statusElement.textContent = `It's a draw!`;
+                gameActive = false;
+                return;
+            }
+        }
+
+        function restartGame() {
+            board = [null, null, null, null, null, null, null, null, null];
+            currentPlayer = 'X';
+            gameActive = true;
+            statusElement.textContent = `Player ${currentPlayer}'s turn`;
+            cellElements.forEach(cell => {
+                cell.classList.remove('taken'); // Remove 'taken' class to reset cell states
+                cell.textContent = ''; // Clear cell text content
+            });
+        }
+
+        // Initialize the game
+        createBoard();
+        statusElement.textContent = `Player ${currentPlayer}'s turn`;
+    </script>
+</body>
+</html>
